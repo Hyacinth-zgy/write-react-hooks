@@ -1,25 +1,24 @@
-// 1.此文件看似功能正常，实际上存在为题
-// 2.问题:当我们在input输入框输入值的时候，Child组件也会不停的渲染
-// 3.实际上Child看起来没有值的改变，不应该进行渲染，所以需要优化
-// 4.导致不停渲染的原因，当输入框输入值改变name的值，APP函数组件重新执行，每次都重新声明data和addClick，这导致每次传入Child的prop的值
-// 看起来没有任何改变，实际上底层数地址指向已经不是同一个了，prop属性的值的更改就会导致组件的更新和渲染
-// 5.优化:index4
-import React, { useState, useMemo, useCallback } from 'react';
+// 对index3进行优化
+import React, { memo, useState, useMemo, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
 function Child({ data, addClick }) {
   console.log('Child render');
   return <button onClick={addClick}>{data.number}</button>;
 }
+Child = memo(Child); // Memo 传入一个组件后返回一个组件，改造后每次渲染会判断一下属性变了没，如果属性不变不渲染,属性变了才渲染
 function App() {
   let [number, setNumber] = useState(0);
   let [name, setName] = useState('zhufeng');
-  let addClick = () => {
-    setNumber(number + 1);
-  };
-  let data = {
-    number,
-  };
+  // 优化改造 useCallback 改造函数,如果传入[] ，那么useCallback返回值不会改变，prop就不会改变，子组件永远不会更新，对于依赖prop更新的组件来说，就永远不会更新了，所以需要传入依赖项number，number改变seCallbackhui会重新计算，传入的prop会更新
+  // 没有第二个参数没有作用，即子组件还是不不停的更新,每次都会返回新的值
+  let addClick = useCallback(() => setNumber(number + 1), [number]);
+  // 优化改造 useMemo改造对象  useMemo同理
+  let data = useMemo(() => {
+    return {
+      number,
+    };
+  }, [number]);
   return (
     <div>
       <div>
