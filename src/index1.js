@@ -3,15 +3,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
-import { useState } from './utils/usestate';
+
+let lastState; // 声明一个状态值:代表值的上一个状态
+function useState(initialState) {
+  lastState = lastState || initialState; // 如果上一个状态有值的话就不使用初始值
+  function setState(newState) {
+    // 声明一个函数，将新的状态值赋值给lastState
+    console.log(1);
+    lastState = newState;
+    render(); // 执行重新渲染
+  }
+  return [lastState, setState];
+}
 
 function Counter() {
+  console.log(2);
   let [state, setState] = useState(1);
-  let [personName, setPersonName] = useState('zgy');
   return (
     <div>
       <p>{state}</p>
-      <p>{personName}</p>
       <button
         onClick={() => {
           console.log(1);
@@ -20,18 +30,10 @@ function Counter() {
       >
         点我加一
       </button>
-      <button
-        onClick={() => {
-          console.log(1);
-          setPersonName('ldh');
-        }}
-      >
-        点我改变名字
-      </button>
     </div>
   );
 }
-export function render() {
+function render() {
   ReactDOM.render(
     <React.StrictMode>
       <Counter></Counter>
